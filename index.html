@@ -1,166 +1,602 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Explore jellyfish genetics, adaptations, and ocean environments.">
-  <title>Pelagic Lab | Explore Jellyfish</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pelagic Lab | Ocean Explorer</title>
+<style>
+:root {
+  --glow: #80fff0;
+  --text: #e8f9ff;
+  --muted: #a8c6d5;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  color: var(--text);
+  font-family: Arial, sans-serif;
+  background: #031321;
+}
+button { font: inherit; cursor: pointer; }
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  padding: 20px 6%;
+  position: relative;
+  z-index: 5;
+  border-bottom: 1px solid #7fffee2a;
+  background: #041725;
+}
+.logo {
+  font-size: 1rem;
+  letter-spacing: .2em;
+  color: var(--glow);
+  font-weight: bold;
+}
+header a {
+  color: var(--muted);
+  text-decoration: none;
+  margin-left: 22px;
+  font-size: .85rem;
+}
+.hero {
+  min-height: 350px;
+  padding: 75px 8% 55px;
+  background:
+    radial-gradient(ellipse at 85% 30%, #17678388, transparent 40%),
+    linear-gradient(130deg, #092a40, #031321 75%);
+  position: relative;
+  overflow: hidden;
+}
+.eyebrow {
+  color: var(--glow);
+  font-size: .72rem;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+}
+h1 {
+  font-size: clamp(2.7rem, 7vw, 5.7rem);
+  letter-spacing: -.06em;
+  line-height: .98;
+  margin: 20px 0;
+  max-width: 750px;
+}
+h1 span { color: var(--glow); }
+.hero p {
+  color: var(--muted);
+  max-width: 520px;
+  line-height: 1.8;
+}
+.hero-orb {
+  position: absolute;
+  width: 270px;
+  height: 270px;
+  right: 12%;
+  top: 55px;
+  border: 1px solid #80fff044;
+  border-radius: 50%;
+  box-shadow: 0 0 70px #29e8e522, inset 0 0 60px #29e8e511;
+}
+.hero-orb::before, .hero-orb::after {
+  content: "";
+  position: absolute;
+  inset: 25px;
+  border: 1px solid #80fff033;
+  border-radius: 50%;
+}
+.hero-orb::after { inset: 55px; }
+.explorer {
+  position: relative;
+  padding: 55px 6% 75px;
+  background: #041725;
+}
+.section-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-bottom: 28px;
+}
+h2 {
+  font-size: clamp(1.8rem, 4vw, 3rem);
+  margin: 10px 0;
+  letter-spacing: -.04em;
+}
+.section-heading p { color: var(--muted); margin-bottom: 5px; }
+.zone-buttons {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 20px;
+}
+.zone-button {
+  text-align: left;
+  padding: 17px;
+  color: var(--muted);
+  background: #0a2435;
+  border: 1px solid #29495b;
+  border-radius: 10px;
+  transition: .2s;
+}
+.zone-button strong {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--text);
+}
+.zone-button small { font-size: .76rem; }
+.zone-button.active, .zone-button:hover {
+  border-color: var(--glow);
+  background: #103b4a;
+  box-shadow: 0 0 22px #80fff012;
+}
+.ocean {
+  --water1: #0b5470;
+  --water2: #07334d;
+  --water3: #031321;
+  position: relative;
+  min-height: 520px;
+  overflow: hidden;
+  border: 1px solid #80fff044;
+  border-radius: 16px;
+  background: linear-gradient(to bottom, var(--water1), var(--water2) 45%, var(--water3));
+  transition: background 1s;
+}
+.ocean::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: .55;
+  background:
+    radial-gradient(ellipse at 50% 0%, #b6ffff38, transparent 50%),
+    repeating-linear-gradient(120deg, transparent 0 90px, #b9ffff08 91px 92px, transparent 93px 180px);
+}
+.ocean[data-zone="twilight"] {
+  --water1: #11445f;
+  --water2: #09243e;
+  --water3: #030b1c;
+}
+.ocean[data-zone="midnight"] {
+  --water1: #10243e;
+  --water2: #080f28;
+  --water3: #01040c;
+}
+.ocean[data-zone="abyss"] {
+  --water1: #15162e;
+  --water2: #090b1d;
+  --water3: #000208;
+}
+.depth-label {
+  position: absolute;
+  left: 25px;
+  top: 23px;
+  z-index: 2;
+}
+.depth-label strong {
+  display: block;
+  font-size: 1.4rem;
+  margin-bottom: 5px;
+}
+.depth-label span { color: #c0dbe7; font-size: .85rem; }
+.ocean-floor {
+  position: absolute;
+  height: 100px;
+  bottom: -65px;
+  left: -5%;
+  width: 110%;
+  border-radius: 50% 50% 0 0;
+  background: linear-gradient(#182e40, #050914);
+  opacity: .8;
+}
+.bubble {
+  position: absolute;
+  bottom: -20px;
+  width: 5px;
+  height: 5px;
+  background: #c6ffff99;
+  border-radius: 50%;
+  animation: rise 9s linear infinite;
+}
+.b1 { left: 15%; animation-delay: -2s; }
+.b2 { left: 42%; animation-delay: -6s; }
+.b3 { left: 75%; animation-delay: -4s; }
+.b4 { left: 90%; animation-delay: -8s; }
+@keyframes rise {
+  from { transform: translateY(0); opacity: 0; }
+  15% { opacity: .8; }
+  to { transform: translateY(-600px); opacity: 0; }
+}
+.creatures {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 25px;
+  padding: 120px 22px 45px;
+}
+.creature {
+  width: min(30%, 230px);
+  min-width: 135px;
+  padding: 0;
+  color: white;
+  background: #06172588;
+  border: 1px solid #9bffff44;
+  border-radius: 13px;
+  overflow: hidden;
+  text-align: left;
+  transition: transform .25s, border-color .25s;
+}
+.creature:hover {
+  transform: translateY(-7px);
+  border-color: var(--glow);
+}
+.creature img {
+  width: 100%;
+  height: 155px;
+  object-fit: cover;
+  display: block;
+}
+.creature .creature-info { padding: 13px; }
+.creature strong { display: block; margin-bottom: 5px; }
+.creature small { color: var(--muted); line-height: 1.5; }
+.click-hint {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  padding: 0 15px 20px;
+  color: #c4dce8;
+  font-size: .8rem;
+}
+.zone-description {
+  padding: 25px;
+  background: #071b2b;
+  border-top: 1px solid #80fff033;
+  position: relative;
+}
+.zone-description p {
+  color: var(--muted);
+  line-height: 1.8;
+  max-width: 800px;
+}
+.zone-description strong { color: var(--glow); }
+.profile {
+  display: none;
+  position: relative;
+  margin-top: 20px;
+  padding: 25px;
+  background: #0b2939;
+  border: 1px solid var(--glow);
+  border-radius: 12px;
+  line-height: 1.7;
+}
+.profile.show { display: block; }
+.profile h3 { margin-top: 0; color: var(--glow); }
+.profile p { color: var(--muted); }
+.close-profile {
+  position: absolute;
+  right: 15px;
+  top: 15px;
+  color: var(--glow);
+  background: transparent;
+  border: 1px solid #80fff066;
+  border-radius: 7px;
+  padding: 5px 10px;
+}
+.lower-section {
+  padding: 65px 8%;
+  border-top: 1px solid #80fff022;
+  background: linear-gradient(140deg, #071b2c, #031321);
+}
+.lower-section p {
+  color: var(--muted);
+  max-width: 750px;
+  line-height: 1.8;
+}
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 25px;
+}
+.info-card {
+  border: 1px solid #80fff02a;
+  background: #0a2435;
+  border-radius: 12px;
+  padding: 22px;
+}
+.info-card h3 { color: var(--glow); }
+footer {
+  padding: 25px;
+  text-align: center;
+  color: var(--muted);
+  background: #020b13;
+  font-size: .8rem;
+  letter-spacing: .12em;
+}
+@media (max-width: 700px) {
+  header { align-items: flex-start; flex-direction: column; }
+  header a { margin-left: 0; margin-right: 15px; }
+  .hero-orb { right: -130px; opacity: .5; }
+  .zone-buttons { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .creatures { gap: 12px; }
+  .creature { width: 44%; min-width: 0; }
+  .creature img { height: 120px; }
+  .info-grid { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+</style>
 </head>
 <body>
-  <header class="site-header">
-    <a class="logo" href="#home">PELAGIC<span> LAB</span></a>
-    <nav aria-label="Main navigation">
-      <a href="#species">Species</a>
-      <a href="#genetics">Genetics Lab</a>
-      <a href="#environments">Ocean Worlds</a>
-      <a href="#engineering">Bioengineering</a>
-    </nav>
-  </header>
 
-  <main>
-    <section class="hero" id="home">
-      <p class="eyebrow">AN INTERACTIVE MARINE SCIENCE EXPLORATION</p>
-      <h1>Life beyond<br>the <span>ordinary.</span></h1>
-      <p class="hero-copy">
-        Enter the world of jellyfish. Discover their unusual biology,
-        explore the traits that help them survive, and investigate
-        what we can learn from life beneath the waves.
-      </p>
-      <a class="explore-button" href="#species">Begin exploring <span>↗</span></a>
-      <div class="hero-note">FIELD NOTES 001 &nbsp;·&nbsp; THE OPEN OCEAN</div>
-      <div class="hero-jelly" aria-hidden="true">
-        <div class="jelly-bell"></div>
-        <div class="tentacles"><i></i><i></i><i></i><i></i><i></i></div>
-      </div>
-      <div class="orb orb-one"></div>
-      <div class="orb orb-two"></div>
-    </section>
+<header>
+  <div class="logo">PELAGIC LAB</div>
+  <nav>
+    <a href="#explore">Ocean Explorer</a>
+    <a href="#genetics">Genetics Lab</a>
+    <a href="#engineering">Bioengineering</a>
+  </nav>
+</header>
 
-    <section class="intro section-wrap">
-      <p class="eyebrow">A WORLD WAITING TO BE EXPLORED</p>
-      <h2>Small organisms.<br><span>Extraordinary biology.</span></h2>
-      <p>Jellyfish have evolved an astonishing range of forms and survival strategies. Explore their diversity, investigate their biology, and discover how the natural world can inspire new ideas.</p>
-    </section>
+<section class="hero">
+  <div class="hero-orb"></div>
+  <div class="eyebrow">An interactive marine science project</div>
+  <h1>Life beyond<br>the <span>surface.</span></h1>
+  <p>
+    Descend through the ocean, discover extraordinary jellyfish,
+    and explore how their genes and adaptations help them survive.
+  </p>
+</section>
 
-    <section class="exploration section-wrap" aria-label="Explore the website">
-      <article class="feature-card" id="species">
-        <div class="feature-visual species-visual">
-          <span class="visual-index">01 / FIELD GUIDE</span>
-          <div class="card-jelly jelly-cyan"><div class="card-bell"></div><i></i><i></i><i></i><i></i></div>
-          <span class="visual-caption">SPECIES ARCHIVE</span>
-        </div>
-        <div class="feature-content">
-          <p class="eyebrow">MEET THE ORGANISMS</p>
-          <h2>Species Explorer</h2>
-          <p>Meet remarkable jellyfish, compare their forms, and discover the adaptations that make each species unique.</p>
-          <a href="#species-details">Explore species <span>↗</span></a>
-        </div>
-      </article>
+<main>
+<section class="explorer" id="explore">
+  <div class="section-heading">
+    <div>
+      <div class="eyebrow">01 / Explore the water column</div>
+      <h2>Choose your depth.</h2>
+    </div>
+    <p>Select an ocean zone to explore its environment.</p>
+  </div>
 
-      <article class="feature-card reverse" id="genetics">
-        <div class="feature-visual genetics-visual">
-          <span class="visual-index">02 / MOLECULAR WORLD</span>
-          <div class="card-jelly jelly-violet"><div class="card-bell"></div><i></i><i></i><i></i><i></i></div>
-          <div class="gene-orbit"></div>
-          <span class="visual-caption">GENETICS IN FOCUS</span>
-        </div>
-        <div class="feature-content">
-          <p class="eyebrow">FROM GENES TO TRAITS</p>
-          <h2>Genetics Lab</h2>
-          <p>Investigate fluorescent proteins, biological traits, and the genetic instructions behind living organisms.</p>
-          <a href="#genetics-details">Enter the lab <span>↗</span></a>
-        </div>
-      </article>
+  <div class="zone-buttons">
+    <button class="zone-button active" data-zone="sunlight">
+      <strong>01 — Sunlight</strong><small>0–200 m</small>
+    </button>
+    <button class="zone-button" data-zone="twilight">
+      <strong>02 — Twilight</strong><small>200–1,000 m</small>
+    </button>
+    <button class="zone-button" data-zone="midnight">
+      <strong>03 — Midnight</strong><small>1,000–4,000 m</small>
+    </button>
+    <button class="zone-button" data-zone="abyss">
+      <strong>04 — Abyss</strong><small>4,000–6,000 m</small>
+    </button>
+  </div>
 
-      <article class="feature-card" id="environments">
-        <div class="feature-visual environment-visual">
-          <span class="visual-index">03 / OCEAN SYSTEMS</span>
-          <div class="depth-ring ring-one"></div><div class="depth-ring ring-two"></div>
-          <div class="card-jelly jelly-blue"><div class="card-bell"></div><i></i><i></i><i></i><i></i></div>
-          <span class="visual-caption">LIFE IN DIFFERENT WATERS</span>
-        </div>
-        <div class="feature-content">
-          <p class="eyebrow">WHERE LIFE SURVIVES</p>
-          <h2>Ocean Worlds</h2>
-          <p>Explore how temperature, depth, light, and other environmental conditions shape life in the ocean.</p>
-          <a href="#environment-details">Explore environments <span>↗</span></a>
-        </div>
-      </article>
+  <div class="ocean" id="ocean" data-zone="sunlight">
+    <div class="depth-label">
+      <strong id="zone-title">The Sunlight Zone</strong>
+      <span id="zone-depth">0–200 meters below the surface</span>
+    </div>
+    <div class="bubble b1"></div>
+    <div class="bubble b2"></div>
+    <div class="bubble b3"></div>
+    <div class="bubble b4"></div>
+    <div class="creatures" id="creatures"></div>
+    <div class="click-hint">SELECT A JELLYFISH TO OPEN ITS FIELD NOTES</div>
+    <div class="ocean-floor"></div>
+  </div>
 
-      <article class="feature-card reverse" id="engineering">
-        <div class="feature-visual engineering-visual">
-          <span class="visual-index">04 / NATURE INSPIRED</span>
-          <div class="engineering-orbit"><span>✳</span></div>
-          <span class="visual-caption">BIO-INSPIRED IDEAS</span>
-        </div>
-        <div class="feature-content">
-          <p class="eyebrow">BIOLOGY MEETS DESIGN</p>
-          <h2>Bio-Inspired Engineering</h2>
-          <p>Discover how the movement and structures of marine organisms can inspire robotics, materials, and technology.</p>
-          <a href="#engineering-details">Discover connections <span>↗</span></a>
-        </div>
-      </article>
-    </section>
+  <div class="zone-description">
+    <div class="eyebrow">Environmental scan</div>
+    <p id="zone-description">
+      Sunlight reaches this zone, supporting photosynthesis in marine
+      ecosystems. Many familiar jellyfish drift through these waters.
+    </p>
+    <div class="profile" id="profile" aria-live="polite">
+      <button class="close-profile" id="close-profile">Close ×</button>
+      <h3 id="profile-name"></h3>
+      <p id="profile-fact"></p>
+      <p id="profile-adaptation"></p>
+      <p id="profile-genetics"></p>
+    </div>
+  </div>
+</section>
 
-    <section class="detail-section section-wrap" id="species-details">
-      <p class="eyebrow">01 / FIELD GUIDE</p>
-      <h2>Meet the <span>jellyfish.</span></h2>
-      <div class="detail-grid">
-        <article><h3>Moon jelly</h3><p>Known for its translucent bell and four horseshoe-shaped reproductive structures visible through its body.</p></article>
-        <article><h3>Sea nettle</h3><p>A group of jellyfish with trailing tentacles that capture prey using specialized stinging cells.</p></article>
-        <article><h3>Immortal jellyfish</h3><p><em>Turritopsis dohrnii</em> can, under certain conditions, revert from its adult medusa stage to an earlier polyp stage.</p></article>
-      </div>
-    </section>
+<section class="lower-section" id="genetics">
+  <div class="eyebrow">02 / Genetics lab</div>
+  <h2>What makes a jellyfish extraordinary?</h2>
+  <p>
+    An organism's traits develop through interactions between its genes
+    and its environment. Researchers study jellyfish to investigate
+    regeneration, life cycles, fluorescent proteins, and other biological
+    questions.
+  </p>
+  <div class="info-grid">
+    <article class="info-card">
+      <h3>Fluorescent proteins</h3>
+      <p>Green fluorescent protein, first isolated from a jellyfish,
+      became an important tool for observing biological processes in
+      living cells.</p>
+    </article>
+    <article class="info-card">
+      <h3>Life-cycle changes</h3>
+      <p>Some jellyfish have complex life cycles with both attached
+      polyp stages and free-swimming stages. The details vary by species.</p>
+    </article>
+    <article class="info-card">
+      <h3>Adaptation</h3>
+      <p>Body structure, behavior, and physiology influence where a
+      species can live. Not every jellyfish can survive at every depth.</p>
+    </article>
+  </div>
+</section>
 
-    <section class="detail-section section-wrap" id="genetics-details">
-      <p class="eyebrow">02 / GENETICS LAB</p>
-      <h2>Instructions for <span>life.</span></h2>
-      <p class="section-description">Genes contain instructions that cells use to build proteins. Some jellyfish proteins have become valuable tools in biological research.</p>
-      <div class="detail-grid">
-        <article><h3>Green fluorescent protein</h3><p>GFP, first isolated from the jellyfish <em>Aequorea victoria</em>, can glow green under suitable illumination and helps researchers track biological processes.</p></article>
-        <article><h3>Traits and genes</h3><p>Traits arise through interactions among genes, cells, and the environment. One gene does not necessarily explain an entire complex trait.</p></article>
-        <article><h3>Life-cycle changes</h3><p>Some jellyfish have unusual life cycles. Scientists study how their cells change state and develop into different forms.</p></article>
-      </div>
-    </section>
+<section class="lower-section" id="engineering">
+  <div class="eyebrow">03 / Bio-inspired engineering</div>
+  <h2>Learning from soft-bodied life.</h2>
+  <p>
+    Jellyfish move by pulsing their bells and interacting with water.
+    Their soft bodies inspire questions in underwater robotics,
+    flexible materials, and energy-efficient movement.
+  </p>
+</section>
+</main>
 
-    <section class="detail-section section-wrap" id="environment-details">
-      <p class="eyebrow">03 / OCEAN WORLDS</p>
-      <h2>Life meets its <span>environment.</span></h2>
-      <p class="section-description">Ocean conditions vary across locations and depths. Explore these factors as a starting point for understanding marine survival.</p>
-      <div class="environment-controls">
-        <label for="temperature">Temperature <output id="temperature-value">15°C</output></label>
-        <input id="temperature" type="range" min="0" max="30" value="15">
-        <label for="depth">Depth <output id="depth-value">200 m</output></label>
-        <input id="depth" type="range" min="0" max="1000" step="50" value="200">
-        <div class="environment-result" id="environment-result" aria-live="polite">Explore how changing conditions may affect marine organisms.</div>
-      </div>
-      <p class="small-note">This is a simplified learning illustration, not a model that predicts the survival of a particular species.</p>
-    </section>
+<footer>PELAGIC LAB · EXPLORE · OBSERVE · DISCOVER</footer>
 
-    <section class="detail-section section-wrap" id="engineering-details">
-      <p class="eyebrow">04 / BIO-INSPIRED ENGINEERING</p>
-      <h2>Ideas from <span>the ocean.</span></h2>
-      <div class="detail-grid">
-        <article><h3>Soft robotics</h3><p>Flexible, soft-bodied marine animals inspire researchers designing robots that can move and interact gently with delicate environments.</p></article>
-        <article><h3>Efficient movement</h3><p>Jellyfish propulsion provides ideas for studying fluid movement and designing underwater devices.</p></article>
-        <article><h3>New questions</h3><p>Biomimicry begins by observing a natural feature, understanding how it works, and asking whether its principles can solve a human design problem.</p></article>
-      </div>
-    </section>
+<script>
+const zones = {
+  sunlight: {
+    title: "The Sunlight Zone",
+    depth: "0–200 meters below the surface",
+    description: "Sunlight reaches this zone, supporting photosynthesis in marine ecosystems. Many familiar jellyfish drift through these waters.",
+    creatures: [
+      {
+        name: "Moon jelly",
+        scientific: "Aurelia species",
+        image: "https://manoa.hawaii.edu/exploringourfluidearth/sites/default/files/Fig4.7B-Jellyfish.jpeg",
+        short: "Four distinctive ring-shaped structures",
+        fact: "Moon jellyfish are recognizable by the four horseshoe-shaped structures visible through their translucent bells. Several species belong to the genus Aurelia.",
+        adaptation: "Their gelatinous bodies and small tentacles help them live as drifting planktonic animals in coastal waters.",
+        genetics: "Comparing Aurelia species can help researchers study genetic variation and how closely related species differ."
+      },
+      {
+        name: "Sea nettle",
+        scientific: "Chrysaora species",
+        image: "https://nmsflowergarden.blob.core.windows.net/flowergarden-prod/media/archive/image_library/inverts/seanettle2gps.jpg",
+        short: "Striking bells and trailing tentacles",
+        fact: "Sea nettle is a common name for several jellyfish species, including Chrysaora quinquecirrha.",
+        adaptation: "Their tentacles carry stinging cells used to capture prey and defend against threats.",
+        genetics: "Scientists can compare related species to investigate how traits and habitats vary across populations."
+      }
+    ]
+  },
+  twilight: {
+    title: "The Twilight Zone",
+    depth: "200–1,000 meters below the surface",
+    description: "Sunlight fades rapidly through the mesopelagic zone. Many animals here encounter dim light, changing temperatures, and daily migrations of prey.",
+    creatures: [
+      {
+        name: "Atolla jelly",
+        scientific: "Atolla species",
+        image: "https://images.unsplash.com/photo-1713129342016-964d23f2d55c?auto=format&fit=crop&w=900&q=80",
+        short: "Deep-water jellyfish",
+        fact: "Atolla is a genus of deep-sea crown jellyfish. Different species have distinctive bells and trailing tentacles.",
+        adaptation: "Some Atolla can produce bioluminescent displays. Light production in the ocean can have different roles, including defense.",
+        genetics: "Bioluminescence depends on specialized biological chemistry. Researchers investigate the molecules and genes involved in light production."
+      },
+      {
+        name: "Deep-sea drifter",
+        scientific: "Species vary",
+        image: "https://images.unsplash.com/photo-1530053969600-caed2596d242?auto=format&fit=crop&w=900&q=80",
+        short: "A look into deep-water diversity",
+        fact: "Deep-water jellyfish come in many shapes and sizes, and not all deep-sea species are closely related.",
+        adaptation: "Deep-water animals experience low light and often colder conditions, but exact adaptations depend on the species.",
+        genetics: "DNA comparisons help researchers investigate relationships among species and how populations evolved."
+      }
+    ]
+  },
+  midnight: {
+    title: "The Midnight Zone",
+    depth: "1,000–4,000 meters below the surface",
+    description: "Sunlight no longer reaches this zone. It is cold, dark, and under high pressure. Deep-sea animals have diverse ways of finding food and surviving.",
+    creatures: [
+      {
+        name: "Deep-sea jellyfish",
+        scientific: "Multiple species",
+        image: "https://images.unsplash.com/photo-1713129342016-964d23f2d55c?auto=format&fit=crop&w=900&q=80",
+        short: "Life in a world without sunlight",
+        fact: "Many jellyfish species have been recorded in deep water, but their depth ranges differ widely.",
+        adaptation: "Depending on the species, deep-sea adaptations can include specialized feeding strategies and tolerance of darkness and pressure.",
+        genetics: "Genomic and molecular research can help scientists understand how organisms function in challenging environments."
+      }
+    ]
+  },
+  abyss: {
+    title: "The Abyssal Zone",
+    depth: "4,000–6,000 meters below the surface",
+    description: "The abyssal zone is extremely dark, cold, and high-pressure. Life exists here, but scientists still have much to learn about deep-ocean biodiversity.",
+    creatures: [
+      {
+        name: "Abyssal life",
+        scientific: "Deep-ocean organisms",
+        image: "https://images.unsplash.com/photo-1530053969600-caed2596d242?auto=format&fit=crop&w=900&q=80",
+        short: "A frontier for marine discovery",
+        fact: "The abyssal zone contains diverse organisms, but a jellyfish's presence at a particular depth must be verified species by species.",
+        adaptation: "Deep-ocean life must function in cold, dark water under immense pressure.",
+        genetics: "Scientists use observations, specimens, and DNA to investigate deep-sea biodiversity. This panel is an introduction, not a claim that every jellyfish lives at this depth."
+      }
+    ]
+  }
+};
 
-    <section class="sources section-wrap">
-      <p class="eyebrow">KEEP EXPLORING</p>
-      <h2>Science behind the <span>stories.</span></h2>
-      <p>Use these trusted starting points to learn more about marine life and jellyfish biology.</p>
-      <div class="source-links">
-        <a href="https://ocean.si.edu/" target="_blank" rel="noopener noreferrer">Smithsonian Ocean ↗</a>
-        <a href="https://oceanservice.noaa.gov/" target="_blank" rel="noopener noreferrer">NOAA Ocean Service ↗</a>
-        <a href="https://pubmed.ncbi.nlm.nih.gov/" target="_blank" rel="noopener noreferrer">PubMed research ↗</a>
-      </div>
-    </section>
-  </main>
+const ocean = document.getElementById("ocean");
+const creatures = document.getElementById("creatures");
+const profile = document.getElementById("profile");
 
-  <footer><a class="logo" href="#home">PELAGIC<span> LAB</span></a><p>An interactive exploration of marine life.</p><a href="#home">Back to top ↑</a></footer>
-  <script src="script.js"></script>
+function showZone(zoneKey) {
+  const zone = zones[zoneKey];
+  ocean.dataset.zone = zoneKey;
+  document.getElementById("zone-title").textContent = zone.title;
+  document.getElementById("zone-depth").textContent = zone.depth;
+  document.getElementById("zone-description").textContent = zone.description;
+  profile.classList.remove("show");
+
+  document.querySelectorAll(".zone-button").forEach(button => {
+    const selected = button.dataset.zone === zoneKey;
+    button.classList.toggle("active", selected);
+    button.setAttribute("aria-pressed", String(selected));
+  });
+
+  creatures.innerHTML = "";
+  zone.creatures.forEach((species, index) => {
+    const button = document.createElement("button");
+    button.className = "creature";
+    button.innerHTML = `
+      <img src="${species.image}" alt="${species.name}"
+           loading="lazy" onerror="this.style.display='none'">
+      <div class="creature-info">
+        <strong>${species.name}</strong>
+        <small>${species.short}</small>
+      </div>`;
+    button.addEventListener("click", () => showProfile(species));
+    creatures.appendChild(button);
+  });
+}
+
+function showProfile(species) {
+  document.getElementById("profile-name").textContent =
+    species.name + " — " + species.scientific;
+  document.getElementById("profile-fact").textContent =
+    "FIELD NOTES: " + species.fact;
+  document.getElementById("profile-adaptation").textContent =
+    "ADAPTATIONS: " + species.adaptation;
+  document.getElementById("profile-genetics").textContent =
+    "GENETICS: " + species.genetics;
+  profile.classList.add("show");
+  profile.scrollIntoView({ behavior: "smooth", block: "nearest" });
+}
+
+document.querySelectorAll(".zone-button").forEach(button => {
+  button.addEventListener("click", () => showZone(button.dataset.zone));
+});
+document.getElementById("close-profile").addEventListener("click", () => {
+  profile.classList.remove("show");
+});
+
+showZone("sunlight");
+</script>
 </body>
 </html>
