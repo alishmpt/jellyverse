@@ -4,599 +4,709 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pelagic Lab | Ocean Explorer</title>
+<title>Pelagic Lab | Into the Blue</title>
 <style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@300;400;500;600;700;800&display=swap');
+
 :root {
-  --glow: #80fff0;
-  --text: #e8f9ff;
-  --muted: #a8c6d5;
+  --cyan: #82f5f2;
+  --violet: #c4a2ff;
+  --ink: #03101c;
 }
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
 body {
   margin: 0;
-  color: var(--text);
-  font-family: Arial, sans-serif;
-  background: #031321;
+  color: #eefbff;
+  background: #020711;
+  font-family: Manrope, sans-serif;
 }
-button { font: inherit; cursor: pointer; }
-header {
+button { font: inherit; }
+.topbar {
+  position: fixed;
+  z-index: 20;
+  top: 0; left: 0; right: 0;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  gap: 20px;
-  padding: 20px 6%;
-  position: relative;
-  z-index: 5;
-  border-bottom: 1px solid #7fffee2a;
-  background: #041725;
+  justify-content: space-between;
+  padding: 20px 5vw;
+  background: linear-gradient(#03101ce8, transparent);
+  pointer-events: none;
 }
-.logo {
-  font-size: 1rem;
-  letter-spacing: .2em;
-  color: var(--glow);
-  font-weight: bold;
+.topbar > * { pointer-events: auto; }
+.brand {
+  font-size: 12px;
+  letter-spacing: .23em;
+  font-weight: 800;
 }
-header a {
-  color: var(--muted);
-  text-decoration: none;
-  margin-left: 22px;
-  font-size: .85rem;
-}
-.hero {
-  min-height: 350px;
-  padding: 75px 8% 55px;
-  background:
-    radial-gradient(ellipse at 85% 30%, #17678388, transparent 40%),
-    linear-gradient(130deg, #092a40, #031321 75%);
-  position: relative;
-  overflow: hidden;
-}
-.eyebrow {
-  color: var(--glow);
-  font-size: .72rem;
-  letter-spacing: .2em;
+.brand span { color: var(--cyan); }
+.top-note, .eyebrow, .depth-label, .species-tag {
+  font-family: "DM Mono", monospace;
+  font-size: 10px;
+  letter-spacing: .15em;
   text-transform: uppercase;
 }
-h1 {
-  font-size: clamp(2.7rem, 7vw, 5.7rem);
-  letter-spacing: -.06em;
-  line-height: .98;
-  margin: 20px 0;
-  max-width: 750px;
+.top-note { color: #b2d2e1; }
+.progress {
+  position: fixed;
+  z-index: 25;
+  top: 0; left: 0;
+  width: 100%;
+  height: 2px;
+  background: #ffffff12;
 }
-h1 span { color: var(--glow); }
-.hero p {
-  color: var(--muted);
-  max-width: 520px;
-  line-height: 1.8;
+.progress-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--cyan), var(--violet));
 }
-.hero-orb {
-  position: absolute;
-  width: 270px;
-  height: 270px;
-  right: 12%;
-  top: 55px;
-  border: 1px solid #80fff044;
-  border-radius: 50%;
-  box-shadow: 0 0 70px #29e8e522, inset 0 0 60px #29e8e511;
-}
-.hero-orb::before, .hero-orb::after {
-  content: "";
-  position: absolute;
-  inset: 25px;
-  border: 1px solid #80fff033;
-  border-radius: 50%;
-}
-.hero-orb::after { inset: 55px; }
-.explorer {
-  position: relative;
-  padding: 55px 6% 75px;
-  background: #041725;
-}
-.section-heading {
+.depth-hud {
+  position: fixed;
+  z-index: 12;
+  left: 26px;
+  top: 43%;
   display: flex;
-  justify-content: space-between;
-  align-items: end;
-  gap: 20px;
-  flex-wrap: wrap;
-  margin-bottom: 28px;
+  align-items: center;
+  gap: 12px;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  color: #c8e9f1;
+  font: 10px "DM Mono", monospace;
+  letter-spacing: .16em;
 }
-h2 {
-  font-size: clamp(1.8rem, 4vw, 3rem);
-  margin: 10px 0;
-  letter-spacing: -.04em;
+.depth-line {
+  width: 1px;
+  height: 95px;
+  background: linear-gradient(var(--cyan), #ffffff12);
 }
-.section-heading p { color: var(--muted); margin-bottom: 5px; }
-.zone-buttons {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 10px;
-  margin-bottom: 20px;
-}
-.zone-button {
-  text-align: left;
-  padding: 17px;
-  color: var(--muted);
-  background: #0a2435;
-  border: 1px solid #29495b;
-  border-radius: 10px;
-  transition: .2s;
-}
-.zone-button strong {
-  display: block;
-  margin-bottom: 6px;
-  color: var(--text);
-}
-.zone-button small { font-size: .76rem; }
-.zone-button.active, .zone-button:hover {
-  border-color: var(--glow);
-  background: #103b4a;
-  box-shadow: 0 0 22px #80fff012;
-}
+#depthNumber { color: var(--cyan); }
+
 .ocean {
-  --water1: #0b5470;
-  --water2: #07334d;
-  --water3: #031321;
   position: relative;
-  min-height: 520px;
   overflow: hidden;
-  border: 1px solid #80fff044;
-  border-radius: 16px;
-  background: linear-gradient(to bottom, var(--water1), var(--water2) 45%, var(--water3));
-  transition: background 1s;
+  isolation: isolate;
+  background:
+    radial-gradient(ellipse at 50% -5%, #9ceaff80 0%, #2679a966 17%, transparent 44%),
+    linear-gradient(180deg,
+      #12577a 0%,
+      #073b60 10%,
+      #062747 22%,
+      #061b32 37%,
+      #071426 52%,
+      #050d1c 69%,
+      #030814 84%,
+      #01040c 100%);
 }
 .ocean::before {
   content: "";
   position: absolute;
-  inset: 0;
-  pointer-events: none;
-  opacity: .55;
+  z-index: -1;
+  top: 0; left: 0; right: 0;
+  height: 760px;
   background:
-    radial-gradient(ellipse at 50% 0%, #b6ffff38, transparent 50%),
-    repeating-linear-gradient(120deg, transparent 0 90px, #b9ffff08 91px 92px, transparent 93px 180px);
+    repeating-linear-gradient(112deg, transparent 0 100px, #b8f7ff0b 102px 105px, transparent 107px 210px),
+    linear-gradient(180deg, #c8f7ff18, transparent 65%);
+  mask-image: linear-gradient(#000, transparent);
+  pointer-events: none;
 }
-.ocean[data-zone="twilight"] {
-  --water1: #11445f;
-  --water2: #09243e;
-  --water3: #030b1c;
-}
-.ocean[data-zone="midnight"] {
-  --water1: #10243e;
-  --water2: #080f28;
-  --water3: #01040c;
-}
-.ocean[data-zone="abyss"] {
-  --water1: #15162e;
-  --water2: #090b1d;
-  --water3: #000208;
-}
-.depth-label {
+.ocean::after {
+  content: "";
   position: absolute;
-  left: 25px;
-  top: 23px;
-  z-index: 2;
+  z-index: -1;
+  inset: 0;
+  opacity: .28;
+  background-image: radial-gradient(#d9faff 1px, transparent 1.5px);
+  background-size: 83px 117px;
+  animation: particles 28s linear infinite;
+  pointer-events: none;
 }
-.depth-label strong {
-  display: block;
-  font-size: 1.4rem;
-  margin-bottom: 5px;
+@keyframes particles {
+  from { background-position: 0 0; }
+  to { background-position: 100px 500px; }
 }
-.depth-label span { color: #c0dbe7; font-size: .85rem; }
-.ocean-floor {
-  position: absolute;
-  height: 100px;
-  bottom: -65px;
-  left: -5%;
-  width: 110%;
-  border-radius: 50% 50% 0 0;
-  background: linear-gradient(#182e40, #050914);
-  opacity: .8;
-}
-.bubble {
-  position: absolute;
-  bottom: -20px;
-  width: 5px;
-  height: 5px;
-  background: #c6ffff99;
-  border-radius: 50%;
-  animation: rise 9s linear infinite;
-}
-.b1 { left: 15%; animation-delay: -2s; }
-.b2 { left: 42%; animation-delay: -6s; }
-.b3 { left: 75%; animation-delay: -4s; }
-.b4 { left: 90%; animation-delay: -8s; }
-@keyframes rise {
-  from { transform: translateY(0); opacity: 0; }
-  15% { opacity: .8; }
-  to { transform: translateY(-600px); opacity: 0; }
-}
-.creatures {
+.surface {
+  height: 100svh;
+  min-height: 680px;
   position: relative;
-  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 120px 12vw 100px;
+  background: linear-gradient(180deg, #b5f4ff0a, transparent 70%);
+}
+.surface-copy { max-width: 800px; }
+.eyebrow { color: var(--cyan); margin-bottom: 24px; }
+.surface h1 {
+  margin: 0;
+  max-width: 780px;
+  font-size: clamp(48px, 8.5vw, 112px);
+  line-height: .98;
+  letter-spacing: -.075em;
+  font-weight: 500;
+}
+.surface h1 em {
+  color: var(--cyan);
+  font-style: normal;
+  font-weight: 300;
+}
+.intro {
+  max-width: 440px;
+  margin-top: 28px;
+  color: #c0dce8;
+  font-size: 15px;
+  line-height: 1.9;
+}
+.scroll-cue {
+  position: absolute;
+  bottom: 44px;
+  left: 12vw;
   display: flex;
   align-items: center;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 25px;
-  padding: 120px 22px 45px;
+  gap: 14px;
+  color: #c6eaf4;
+  font: 10px "DM Mono", monospace;
+  letter-spacing: .16em;
+  text-transform: uppercase;
 }
-.creature {
-  width: min(30%, 230px);
-  min-width: 135px;
-  padding: 0;
-  color: white;
-  background: #06172588;
-  border: 1px solid #9bffff44;
-  border-radius: 13px;
-  overflow: hidden;
-  text-align: left;
-  transition: transform .25s, border-color .25s;
-}
-.creature:hover {
-  transform: translateY(-7px);
-  border-color: var(--glow);
-}
-.creature img {
-  width: 100%;
-  height: 155px;
-  object-fit: cover;
+.scroll-cue span {
   display: block;
+  width: 45px;
+  height: 1px;
+  background: var(--cyan);
 }
-.creature .creature-info { padding: 13px; }
-.creature strong { display: block; margin-bottom: 5px; }
-.creature small { color: var(--muted); line-height: 1.5; }
-.click-hint {
+.sun-glow {
+  position: absolute;
+  top: 0; right: 4%;
+  width: 40vw; height: 40vw;
+  max-width: 540px; max-height: 540px;
+  border-radius: 50%;
+  background: #a4f1ff13;
+  filter: blur(60px);
+  pointer-events: none;
+}
+.depth-zone {
+  min-height: 1100px;
+  position: relative;
+  padding: 90px 10vw;
+  border-top: 1px solid #d6f7ff12;
+}
+.zone-heading {
   position: relative;
   z-index: 2;
-  text-align: center;
-  padding: 0 15px 20px;
-  color: #c4dce8;
-  font-size: .8rem;
+  max-width: 430px;
+  pointer-events: none;
 }
-.zone-description {
-  padding: 25px;
-  background: #071b2b;
-  border-top: 1px solid #80fff033;
-  position: relative;
+.zone-heading .eyebrow { margin-bottom: 15px; }
+.zone-heading h2 {
+  margin: 0 0 14px;
+  font-size: clamp(32px, 4vw, 54px);
+  font-weight: 400;
+  letter-spacing: -.055em;
 }
-.zone-description p {
-  color: var(--muted);
+.zone-heading p {
+  margin: 0;
+  max-width: 360px;
+  color: #a9c5d6;
+  font-size: 13px;
   line-height: 1.8;
-  max-width: 800px;
 }
-.zone-description strong { color: var(--glow); }
-.profile {
-  display: none;
-  position: relative;
-  margin-top: 20px;
-  padding: 25px;
-  background: #0b2939;
-  border: 1px solid var(--glow);
-  border-radius: 12px;
-  line-height: 1.7;
-}
-.profile.show { display: block; }
-.profile h3 { margin-top: 0; color: var(--glow); }
-.profile p { color: var(--muted); }
-.close-profile {
+.zone-number {
+  color: #a2f5f22b;
   position: absolute;
-  right: 15px;
-  top: 15px;
-  color: var(--glow);
+  right: 8vw; top: 50px;
+  font-size: clamp(70px, 15vw, 190px);
+  line-height: 1;
+  letter-spacing: -.09em;
+  font-weight: 800;
+  pointer-events: none;
+}
+.surface-zone { min-height: 1050px; }
+.twilight-zone {
+  background: linear-gradient(180deg, #09203918, #06132635);
+  min-height: 1250px;
+}
+.midnight-zone {
+  background: linear-gradient(180deg, #050b1c22, #01061170);
+  min-height: 1250px;
+}
+.abyss-zone {
+  background: linear-gradient(180deg, #02061140, #010207);
+  min-height: 1350px;
+}
+.depth-marker {
+  position: absolute;
+  left: 10vw;
+  bottom: 40px;
+  color: #7898ac;
+  font: 10px "DM Mono", monospace;
+  letter-spacing: .15em;
+}
+.depth-marker::before {
+  content: "";
+  display: inline-block;
+  width: 30px;
+  height: 1px;
+  margin: 0 12px 3px 0;
+  background: var(--cyan);
+}
+.jelly {
+  position: absolute;
+  z-index: 5;
+  width: clamp(115px, 17vw, 230px);
+  aspect-ratio: 1 / 1.25;
+  padding: 0;
+  border: 0;
   background: transparent;
-  border: 1px solid #80fff066;
-  border-radius: 7px;
-  padding: 5px 10px;
+  cursor: pointer;
+  filter: drop-shadow(0 0 20px #75e8ff22);
+  animation: drift 7s ease-in-out infinite;
+  transition: filter .3s, transform .3s;
 }
-.lower-section {
-  padding: 65px 8%;
-  border-top: 1px solid #80fff022;
-  background: linear-gradient(140deg, #071b2c, #031321);
+.jelly:hover, .jelly:focus-visible {
+  filter: drop-shadow(0 0 28px #82f5f2aa);
+  outline: none;
 }
-.lower-section p {
-  color: var(--muted);
-  max-width: 750px;
+.jelly img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  mix-blend-mode: screen;
+  -webkit-mask-image: radial-gradient(ellipse, #000 40%, #000c 66%, transparent 78%);
+  mask-image: radial-gradient(ellipse, #000 40%, #000c 66%, transparent 78%);
+  transition: transform .35s;
+}
+.jelly:hover img { transform: scale(1.08); }
+.jelly::after {
+  content: "＋";
+  position: absolute;
+  top: 10px; right: 10px;
+  display: grid;
+  place-items: center;
+  width: 25px; height: 25px;
+  border: 1px solid #bdfbff66;
+  border-radius: 50%;
+  background: #05142499;
+  color: var(--cyan);
+  font-size: 15px;
+  opacity: 0;
+  transition: opacity .25s;
+}
+.jelly:hover::after, .jelly:focus-visible::after { opacity: 1; }
+.jelly-label {
+  position: absolute;
+  left: 50%; bottom: -12px;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  color: #e0faff;
+  font: 10px "DM Mono", monospace;
+  letter-spacing: .08em;
+  text-shadow: 0 2px 12px #000;
+  opacity: .78;
+}
+@keyframes drift {
+  0%,100% { translate: 0 0; rotate: -2deg; }
+  50% { translate: 10px -22px; rotate: 3deg; }
+}
+.j1 { top: 33%; left: 68%; animation-delay: -2s; }
+.j2 { top: 58%; left: 26%; width: clamp(95px, 13vw, 170px); animation-delay: -4s; }
+.j3 { top: 38%; left: 62%; animation-delay: -3s; }
+.j4 { top: 65%; left: 18%; width: clamp(105px, 15vw, 190px); animation-delay: -1s; }
+.j5 { top: 39%; left: 66%; width: clamp(125px, 18vw, 240px); animation-delay: -5s; }
+.j6 { top: 66%; left: 31%; width: clamp(100px, 14vw, 180px); animation-delay: -2s; }
+.j7 { top: 42%; left: 64%; width: clamp(115px, 16vw, 205px); animation-delay: -4s; }
+.j8 { top: 66%; left: 22%; width: clamp(100px, 14vw, 180px); animation-delay: -3s; }
+.j9 { top: 72%; left: 68%; width: clamp(100px, 14vw, 180px); animation-delay: -1s; }
+
+.info-panel {
+  position: fixed;
+  z-index: 40;
+  top: 50%; right: 24px;
+  transform: translateY(-50%) translateX(25px);
+  width: min(410px, calc(100vw - 32px));
+  max-height: 82vh;
+  overflow-y: auto;
+  padding: 0 25px 28px;
+  border: 1px solid #a6efff45;
+  border-radius: 4px;
+  background: linear-gradient(150deg, #10263aef, #040b17f5 80%);
+  box-shadow: 0 25px 90px #0009, 0 0 45px #52dff01a;
+  backdrop-filter: blur(22px);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity .25s, transform .25s, visibility .25s;
+}
+.info-panel.open {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(-50%) translateX(0);
+}
+.panel-top {
+  position: sticky;
+  top: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 0 12px;
+  background: #0c1a2df2;
+}
+.species-tag { color: var(--cyan); }
+.close-panel {
+  border: 1px solid #ffffff35;
+  background: transparent;
+  color: white;
+  width: 34px; height: 34px;
+  cursor: pointer;
+  font-size: 20px;
+}
+.panel-photo {
+  width: 100%;
+  height: 185px;
+  object-fit: contain;
+  background: #020914;
+  margin: 10px 0 18px;
+}
+.info-panel h3 {
+  margin: 0 0 5px;
+  font-size: 30px;
+  line-height: 1.1;
+  letter-spacing: -.05em;
+}
+.latin { color: #a9c5d6; font-size: 12px; font-style: italic; }
+.panel-depth {
+  margin: 18px 0;
+  padding: 13px 0;
+  border-top: 1px solid #ffffff20;
+  border-bottom: 1px solid #ffffff20;
+  color: var(--cyan);
+  font: 10px "DM Mono", monospace;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+.info-panel h4 {
+  margin: 21px 0 7px;
+  color: var(--violet);
+  font: 10px "DM Mono", monospace;
+  letter-spacing: .13em;
+  text-transform: uppercase;
+}
+.info-panel p {
+  margin: 0;
+  color: #c1d5e1;
+  font-size: 13px;
   line-height: 1.8;
 }
-.info-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 16px;
-  margin-top: 25px;
+.panel-hint {
+  color: #8faec1;
+  font-size: 11px;
+  line-height: 1.7;
+  margin-top: 22px;
 }
-.info-card {
-  border: 1px solid #80fff02a;
-  background: #0a2435;
-  border-radius: 12px;
-  padding: 22px;
+.end-note {
+  position: relative;
+  min-height: 420px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 90px 12vw;
+  background: radial-gradient(ellipse at 50% 100%, #15364d66, transparent 65%);
+  border-top: 1px solid #ffffff12;
 }
-.info-card h3 { color: var(--glow); }
-footer {
-  padding: 25px;
-  text-align: center;
-  color: var(--muted);
-  background: #020b13;
-  font-size: .8rem;
-  letter-spacing: .12em;
+.end-note h2 {
+  margin: 12px 0;
+  max-width: 650px;
+  font-size: clamp(32px, 5vw, 65px);
+  font-weight: 400;
+  letter-spacing: -.06em;
 }
-@media (max-width: 700px) {
-  header { align-items: flex-start; flex-direction: column; }
-  header a { margin-left: 0; margin-right: 15px; }
-  .hero-orb { right: -130px; opacity: .5; }
-  .zone-buttons { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .creatures { gap: 12px; }
-  .creature { width: 44%; min-width: 0; }
-  .creature img { height: 120px; }
-  .info-grid { grid-template-columns: 1fr; }
+.end-note p { color: #a9c5d6; max-width: 460px; line-height: 1.8; font-size: 13px; }
+.footer {
+  padding: 25px 5vw;
+  color: #7292a6;
+  font: 10px "DM Mono", monospace;
+  letter-spacing: .1em;
+  border-top: 1px solid #ffffff12;
 }
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    animation-duration: .01ms !important;
-    scroll-behavior: auto !important;
-  }
+@media(max-width:700px) {
+  .topbar { padding: 17px 20px; }
+  .top-note { font-size: 8px; }
+  .depth-hud { left: 9px; font-size: 8px; }
+  .surface { padding: 110px 35px 100px 48px; }
+  .surface h1 { font-size: clamp(49px, 14vw, 76px); }
+  .scroll-cue { left: 48px; }
+  .depth-zone { padding: 65px 35px 70px 48px; min-height: 1000px; }
+  .zone-number { right: 18px; top: 30px; }
+  .jelly { width: 125px; }
+  .j1 { left: 55%; top: 42%; }
+  .j2 { left: 12%; top: 68%; }
+  .j3 { left: 54%; top: 43%; }
+  .j4 { left: 9%; top: 67%; }
+  .j5 { left: 51%; top: 41%; }
+  .j6 { left: 12%; top: 68%; }
+  .j7 { left: 52%; top: 42%; }
+  .j8 { left: 10%; top: 67%; }
+  .j9 { left: 55%; top: 70%; }
+  .info-panel { right: 12px; width: calc(100vw - 24px); max-height: 78vh; }
+}
+@media(prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; scroll-behavior: auto !important; }
 }
 </style>
 </head>
 <body>
+<div class="progress"><div class="progress-fill" id="progressFill"></div></div>
 
-<header>
-  <div class="logo">PELAGIC LAB</div>
-  <nav>
-    <a href="#explore">Ocean Explorer</a>
-    <a href="#genetics">Genetics Lab</a>
-    <a href="#engineering">Bioengineering</a>
-  </nav>
+<header class="topbar">
+  <div class="brand">PELAGIC <span>LAB</span></div>
+  <div class="top-note">FIELD NOTES // JELLYFISH & GENETICS</div>
 </header>
 
-<section class="hero">
-  <div class="hero-orb"></div>
-  <div class="eyebrow">An interactive marine science project</div>
-  <h1>Life beyond<br>the <span>surface.</span></h1>
-  <p>
-    Descend through the ocean, discover extraordinary jellyfish,
-    and explore how their genes and adaptations help them survive.
-  </p>
-</section>
+<aside class="depth-hud">
+  <span id="depthNumber">000 M</span>
+  <span class="depth-line"></span>
+  <span id="depthZone">SURFACE WATERS</span>
+</aside>
 
-<main>
-<section class="explorer" id="explore">
-  <div class="section-heading">
-    <div>
-      <div class="eyebrow">01 / Explore the water column</div>
-      <h2>Choose your depth.</h2>
+<main class="ocean" id="ocean">
+  <section class="surface" id="surface">
+    <div class="sun-glow"></div>
+    <div class="surface-copy">
+      <div class="eyebrow">AN EXPLORATION OF LIFE BELOW</div>
+      <h1>Into the<br><em>unknown blue.</em></h1>
+      <p class="intro">
+        Drift through the ocean's changing worlds. Meet the jellyfish that
+        live there, explore how they survive, and uncover the biology
+        behind their extraordinary traits.
+      </p>
     </div>
-    <p>Select an ocean zone to explore its environment.</p>
-  </div>
+    <div class="scroll-cue"><span></span> Scroll to descend</div>
+  </section>
 
-  <div class="zone-buttons">
-    <button class="zone-button active" data-zone="sunlight">
-      <strong>01 — Sunlight</strong><small>0–200 m</small>
-    </button>
-    <button class="zone-button" data-zone="twilight">
-      <strong>02 — Twilight</strong><small>200–1,000 m</small>
-    </button>
-    <button class="zone-button" data-zone="midnight">
-      <strong>03 — Midnight</strong><small>1,000–4,000 m</small>
-    </button>
-    <button class="zone-button" data-zone="abyss">
-      <strong>04 — Abyss</strong><small>4,000–6,000 m</small>
-    </button>
-  </div>
-
-  <div class="ocean" id="ocean" data-zone="sunlight">
-    <div class="depth-label">
-      <strong id="zone-title">The Sunlight Zone</strong>
-      <span id="zone-depth">0–200 meters below the surface</span>
+  <section class="depth-zone surface-zone" data-depth="150" data-zone="SUNLIT ZONE">
+    <div class="zone-heading">
+      <div class="eyebrow">01 — THE SUNLIT ZONE</div>
+      <h2>Where light begins.</h2>
+      <p>Sunlight reaches these upper waters. Coastal jellyfish drift with currents, catch tiny prey, and become part of a much larger food web.</p>
     </div>
-    <div class="bubble b1"></div>
-    <div class="bubble b2"></div>
-    <div class="bubble b3"></div>
-    <div class="bubble b4"></div>
-    <div class="creatures" id="creatures"></div>
-    <div class="click-hint">SELECT A JELLYFISH TO OPEN ITS FIELD NOTES</div>
-    <div class="ocean-floor"></div>
-  </div>
+    <div class="zone-number">150<span style="font-size:.25em"> M</span></div>
 
-  <div class="zone-description">
-    <div class="eyebrow">Environmental scan</div>
-    <p id="zone-description">
-      Sunlight reaches this zone, supporting photosynthesis in marine
-      ecosystems. Many familiar jellyfish drift through these waters.
-    </p>
-    <div class="profile" id="profile" aria-live="polite">
-      <button class="close-profile" id="close-profile">Close ×</button>
-      <h3 id="profile-name"></h3>
-      <p id="profile-fact"></p>
-      <p id="profile-adaptation"></p>
-      <p id="profile-genetics"></p>
+    <button class="jelly j1" data-species="moon" aria-label="Learn about the moon jellyfish">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/f/f9/Aurelia_aurita_%28Cnidaria%29_Luc_Viatour.jpg" alt="Moon jellyfish photographed underwater">
+      <span class="jelly-label">MOON JELLY</span>
+    </button>
+    <button class="jelly j2" data-species="upside" aria-label="Learn about the upside-down jellyfish">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/f/f9/Aurelia_aurita_%28Cnidaria%29_Luc_Viatour.jpg" alt="Jellyfish in the water">
+      <span class="jelly-label">SYMBIOSIS</span>
+    </button>
+    <div class="depth-marker">0–200 M // EPipelagic</div>
+  </section>
+
+  <section class="depth-zone twilight-zone" data-depth="650" data-zone="TWILIGHT ZONE">
+    <div class="zone-heading">
+      <div class="eyebrow">02 — THE TWILIGHT ZONE</div>
+      <h2>Light fades. Life adapts.</h2>
+      <p>Below the sunlit layer, daylight becomes faint. Animals here live in a world of dim blue light, shifting food supplies, and changing pressure.</p>
     </div>
-  </div>
-</section>
+    <div class="zone-number">650<span style="font-size:.25em"> M</span></div>
 
-<section class="lower-section" id="genetics">
-  <div class="eyebrow">02 / Genetics lab</div>
-  <h2>What makes a jellyfish extraordinary?</h2>
-  <p>
-    An organism's traits develop through interactions between its genes
-    and its environment. Researchers study jellyfish to investigate
-    regeneration, life cycles, fluorescent proteins, and other biological
-    questions.
-  </p>
-  <div class="info-grid">
-    <article class="info-card">
-      <h3>Fluorescent proteins</h3>
-      <p>Green fluorescent protein, first isolated from a jellyfish,
-      became an important tool for observing biological processes in
-      living cells.</p>
-    </article>
-    <article class="info-card">
-      <h3>Life-cycle changes</h3>
-      <p>Some jellyfish have complex life cycles with both attached
-      polyp stages and free-swimming stages. The details vary by species.</p>
-    </article>
-    <article class="info-card">
-      <h3>Adaptation</h3>
-      <p>Body structure, behavior, and physiology influence where a
-      species can live. Not every jellyfish can survive at every depth.</p>
-    </article>
-  </div>
-</section>
+    <button class="jelly j3" data-species="crystal" aria-label="Learn about the crystal jelly">
+      <img src="https://oceanexplorer.noaa.gov/wp-content/uploads/2021/11/dive03-jelly-hires.jpg" alt="Translucent jellyfish seen during a NOAA deep ocean expedition">
+      <span class="jelly-label">TRANSPARENCY</span>
+    </button>
+    <button class="jelly j4" data-species="helmet" aria-label="Learn about the helmet jellyfish">
+      <img src="https://oceanexplorer.noaa.gov/wp-content/uploads/2021/11/dive03-jelly-hires.jpg" alt="Deep-water jellyfish">
+      <span class="jelly-label">HELMET JELLY</span>
+    </button>
+    <div class="depth-marker">200–1,000 M // MESOPELAGIC</div>
+  </section>
 
-<section class="lower-section" id="engineering">
-  <div class="eyebrow">03 / Bio-inspired engineering</div>
-  <h2>Learning from soft-bodied life.</h2>
-  <p>
-    Jellyfish move by pulsing their bells and interacting with water.
-    Their soft bodies inspire questions in underwater robotics,
-    flexible materials, and energy-efficient movement.
-  </p>
-</section>
+  <section class="depth-zone midnight-zone" data-depth="1800" data-zone="MIDNIGHT ZONE">
+    <div class="zone-heading">
+      <div class="eyebrow">03 — THE MIDNIGHT ZONE</div>
+      <h2>In the absence of sunlight.</h2>
+      <p>Sunlight no longer reaches this depth. Some deep-sea animals produce their own light, while others rely on sensitive senses and energy-saving strategies.</p>
+    </div>
+    <div class="zone-number">1800<span style="font-size:.25em"> M</span></div>
+
+    <button class="jelly j5" data-species="atolla" aria-label="Learn about Atolla wyvillei">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/4/44/Atolla_wyvillei.jpg" alt="Atolla wyvillei crown jellyfish">
+      <span class="jelly-label">ATOLLA</span>
+    </button>
+    <button class="jelly j6" data-species="phantom" aria-label="Learn about the giant phantom jelly">
+      <img src="https://oceanexplorer.noaa.gov/wp-content/uploads/2021/11/dive03-jelly-hires.jpg" alt="Jellyfish observed in deep water">
+      <span class="jelly-label">DEEP DRIFTER</span>
+    </button>
+    <div class="depth-marker">1,000–4,000 M // BATHYPELAGIC</div>
+  </section>
+
+  <section class="depth-zone abyss-zone" data-depth="4500" data-zone="THE ABYSS">
+    <div class="zone-heading">
+      <div class="eyebrow">04 — THE ABYSS</div>
+      <h2>Life in the dark.</h2>
+      <p>Far below the surface, the ocean is cold, dark, and under immense pressure. Deep-sea exploration continues to reveal animals and adaptations that are still being studied.</p>
+    </div>
+    <div class="zone-number">4500<span style="font-size:.25em"> M</span></div>
+
+    <button class="jelly j7" data-species="atolla" aria-label="Explore the crown jellyfish">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/4/44/Atolla_wyvillei.jpg" alt="Crown jellyfish in dark water">
+      <span class="jelly-label">CROWN JELLY</span>
+    </button>
+    <button class="jelly j8" data-species="helmet" aria-label="Explore the helmet jellyfish">
+      <img src="https://oceanexplorer.noaa.gov/wp-content/uploads/2021/11/dive03-jelly-hires.jpg" alt="Deep sea jellyfish">
+      <span class="jelly-label">DARK-WATER LIFE</span>
+    </button>
+    <button class="jelly j9" data-species="moon" aria-label="Revisit the moon jellyfish">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/f/f9/Aurelia_aurita_%28Cnidaria%29_Luc_Viatour.jpg" alt="Moon jellyfish">
+      <span class="jelly-label">RETURN TO THE SURFACE</span>
+    </button>
+    <div class="depth-marker">4,000–6,000 M // ABYSSOPELAGIC</div>
+  </section>
+
+  <section class="end-note">
+    <div class="eyebrow">THE OCEAN IS STILL A FRONTIER</div>
+    <h2>Every organism holds a clue.</h2>
+    <p>From fluorescent proteins to unusual life cycles, jellyfish help scientists ask bigger questions about genes, cells, evolution, and life in extreme environments.</p>
+    <p>Keep exploring. Select any jellyfish along your descent to open its field notes.</p>
+  </section>
 </main>
 
-<footer>PELAGIC LAB · EXPLORE · OBSERVE · DISCOVER</footer>
+<footer class="footer">
+  PELAGIC LAB // AN INTERACTIVE EXPLORATION OF MARINE LIFE
+</footer>
+
+<aside class="info-panel" id="infoPanel" aria-live="polite" aria-label="Jellyfish field notes">
+  <div class="panel-top">
+    <span class="species-tag">SPECIES FIELD NOTES</span>
+    <button class="close-panel" id="closePanel" aria-label="Close species information">×</button>
+  </div>
+  <img class="panel-photo" id="panelPhoto" src="" alt="">
+  <h3 id="panelName">Species name</h3>
+  <div class="latin" id="panelLatin"></div>
+  <div class="panel-depth" id="panelDepth"></div>
+  <h4>Habitat & survival</h4>
+  <p id="panelSurvival"></p>
+  <h4>Genetics & biology</h4>
+  <p id="panelGenetics"></p>
+  <h4>What makes it remarkable</h4>
+  <p id="panelSpecial"></p>
+  <div class="panel-hint">Field note: depth ranges vary by species, life stage, and location. Some genetic details remain under active study.</div>
+</aside>
 
 <script>
-const zones = {
-  sunlight: {
-    title: "The Sunlight Zone",
-    depth: "0–200 meters below the surface",
-    description: "Sunlight reaches this zone, supporting photosynthesis in marine ecosystems. Many familiar jellyfish drift through these waters.",
-    creatures: [
-      {
-        name: "Moon jelly",
-        scientific: "Aurelia species",
-        image: "https://manoa.hawaii.edu/exploringourfluidearth/sites/default/files/Fig4.7B-Jellyfish.jpeg",
-        short: "Four distinctive ring-shaped structures",
-        fact: "Moon jellyfish are recognizable by the four horseshoe-shaped structures visible through their translucent bells. Several species belong to the genus Aurelia.",
-        adaptation: "Their gelatinous bodies and small tentacles help them live as drifting planktonic animals in coastal waters.",
-        genetics: "Comparing Aurelia species can help researchers study genetic variation and how closely related species differ."
-      },
-      {
-        name: "Sea nettle",
-        scientific: "Chrysaora species",
-        image: "https://nmsflowergarden.blob.core.windows.net/flowergarden-prod/media/archive/image_library/inverts/seanettle2gps.jpg",
-        short: "Striking bells and trailing tentacles",
-        fact: "Sea nettle is a common name for several jellyfish species, including Chrysaora quinquecirrha.",
-        adaptation: "Their tentacles carry stinging cells used to capture prey and defend against threats.",
-        genetics: "Scientists can compare related species to investigate how traits and habitats vary across populations."
-      }
-    ]
+const species = {
+  moon: {
+    name: "Moon jellyfish",
+    latin: "Aurelia species",
+    depth: "Commonly found in coastal and upper ocean waters",
+    photo: "https://upload.wikimedia.org/wikipedia/commons/f/f9/Aurelia_aurita_%28Cnidaria%29_Luc_Viatour.jpg",
+    survival: "Moon jellies capture tiny drifting animals and other particles using mucus and structures on their arms. Their bell pulses to move water and help them drift. They are also prey for some larger marine animals.",
+    genetics: "Aurelia is a group of closely related species. Genetic research helps scientists distinguish species that can look very similar, so not every moon jelly should automatically be identified as Aurelia aurita.",
+    special: "The four horseshoe-shaped structures visible through the bell are reproductive organs in mature animals. Their translucent bodies make internal structures easy to observe."
   },
-  twilight: {
-    title: "The Twilight Zone",
-    depth: "200–1,000 meters below the surface",
-    description: "Sunlight fades rapidly through the mesopelagic zone. Many animals here encounter dim light, changing temperatures, and daily migrations of prey.",
-    creatures: [
-      {
-        name: "Atolla jelly",
-        scientific: "Atolla species",
-        image: "https://images.unsplash.com/photo-1713129342016-964d23f2d55c?auto=format&fit=crop&w=900&q=80",
-        short: "Deep-water jellyfish",
-        fact: "Atolla is a genus of deep-sea crown jellyfish. Different species have distinctive bells and trailing tentacles.",
-        adaptation: "Some Atolla can produce bioluminescent displays. Light production in the ocean can have different roles, including defense.",
-        genetics: "Bioluminescence depends on specialized biological chemistry. Researchers investigate the molecules and genes involved in light production."
-      },
-      {
-        name: "Deep-sea drifter",
-        scientific: "Species vary",
-        image: "https://images.unsplash.com/photo-1530053969600-caed2596d242?auto=format&fit=crop&w=900&q=80",
-        short: "A look into deep-water diversity",
-        fact: "Deep-water jellyfish come in many shapes and sizes, and not all deep-sea species are closely related.",
-        adaptation: "Deep-water animals experience low light and often colder conditions, but exact adaptations depend on the species.",
-        genetics: "DNA comparisons help researchers investigate relationships among species and how populations evolved."
-      }
-    ]
+  upside: {
+    name: "Upside-down jellyfish",
+    latin: "Cassiopea species",
+    depth: "Shallow tropical and subtropical habitats",
+    photo: "https://upload.wikimedia.org/wikipedia/commons/f/f9/Aurelia_aurita_%28Cnidaria%29_Luc_Viatour.jpg",
+    survival: "These jellies often rest bell-down on shallow, sunlit bottoms, with their arms facing upward. They live in partnership with photosynthetic algae, which use sunlight to make sugars that can help nourish the jellyfish.",
+    genetics: "Research on Cassiopea and its symbiotic algae investigates how animals and microbes communicate and maintain a partnership. The details can differ among species and symbiotic partners.",
+    special: "Their unusual upside-down posture helps expose their symbiotic algae to light. They are a useful model for studying animal–microbe relationships."
   },
-  midnight: {
-    title: "The Midnight Zone",
-    depth: "1,000–4,000 meters below the surface",
-    description: "Sunlight no longer reaches this zone. It is cold, dark, and under high pressure. Deep-sea animals have diverse ways of finding food and surviving.",
-    creatures: [
-      {
-        name: "Deep-sea jellyfish",
-        scientific: "Multiple species",
-        image: "https://images.unsplash.com/photo-1713129342016-964d23f2d55c?auto=format&fit=crop&w=900&q=80",
-        short: "Life in a world without sunlight",
-        fact: "Many jellyfish species have been recorded in deep water, but their depth ranges differ widely.",
-        adaptation: "Depending on the species, deep-sea adaptations can include specialized feeding strategies and tolerance of darkness and pressure.",
-        genetics: "Genomic and molecular research can help scientists understand how organisms function in challenging environments."
-      }
-    ]
+  crystal: {
+    name: "Crystal jelly",
+    latin: "Aequorea victoria",
+    depth: "Coastal waters of the northeastern Pacific",
+    photo: "https://oceanexplorer.noaa.gov/wp-content/uploads/2021/11/dive03-jelly-hires.jpg",
+    survival: "This nearly transparent hydrozoan jellyfish feeds on small drifting animals. Its clear body can make it difficult to see in the water.",
+    genetics: "Aequorea victoria is famous in molecular biology because researchers isolated green fluorescent protein (GFP) from it. GFP became a widely used tool for marking and observing biological processes in cells.",
+    special: "Green fluorescent protein helped transform modern cell biology. Scientists can use related fluorescent proteins to observe where particular molecules are located."
   },
-  abyss: {
-    title: "The Abyssal Zone",
-    depth: "4,000–6,000 meters below the surface",
-    description: "The abyssal zone is extremely dark, cold, and high-pressure. Life exists here, but scientists still have much to learn about deep-ocean biodiversity.",
-    creatures: [
-      {
-        name: "Abyssal life",
-        scientific: "Deep-ocean organisms",
-        image: "https://images.unsplash.com/photo-1530053969600-caed2596d242?auto=format&fit=crop&w=900&q=80",
-        short: "A frontier for marine discovery",
-        fact: "The abyssal zone contains diverse organisms, but a jellyfish's presence at a particular depth must be verified species by species.",
-        adaptation: "Deep-ocean life must function in cold, dark water under immense pressure.",
-        genetics: "Scientists use observations, specimens, and DNA to investigate deep-sea biodiversity. This panel is an introduction, not a claim that every jellyfish lives at this depth."
-      }
-    ]
+  helmet: {
+    name: "Helmet jellyfish",
+    latin: "Periphylla periphylla",
+    depth: "Often recorded in dark midwater; depth varies by region",
+    photo: "https://oceanexplorer.noaa.gov/wp-content/uploads/2021/11/dive03-jelly-hires.jpg",
+    survival: "This deep-water jellyfish can occur hundreds of metres below the surface. NOAA researchers have documented it at around 900 metres. It captures prey with its tentacles and lives where sunlight is very limited.",
+    genetics: "Researchers study deep-sea jellyfish to understand their evolutionary relationships and adaptations to dark environments. Specific genetic explanations for every feature are not yet established.",
+    special: "Its reddish coloration is common among some deep-sea animals; red light is quickly absorbed by seawater, making red animals harder to see in much of the deep ocean."
+  },
+  atolla: {
+    name: "Atolla crown jellyfish",
+    latin: "Atolla wyvillei",
+    depth: "Deep midwater; recorded in the bathypelagic ocean",
+    photo: "https://upload.wikimedia.org/wikipedia/commons/4/44/Atolla_wyvillei.jpg",
+    survival: "Atolla lives in dark deep-water habitats and captures small animals as prey. It is known for a striking light-producing display that can be triggered when it is disturbed.",
+    genetics: "Its bioluminescence is an active area of interest in deep-sea biology. Scientists investigate the chemistry and evolution of light production across many marine organisms; not every molecular detail is fully known for every species.",
+    special: "Some Atolla jellyfish can produce a ring-like flash of blue light. Scientists have studied this response as a possible way of attracting the attention of a larger predator, which might then attack whatever is threatening the jellyfish."
+  },
+  phantom: {
+    name: "Giant phantom jelly",
+    latin: "Stygiomedusa gigantea",
+    depth: "Rarely observed deep-ocean waters",
+    photo: "https://oceanexplorer.noaa.gov/wp-content/uploads/2021/11/dive03-jelly-hires.jpg",
+    survival: "This rarely encountered deep-sea jellyfish has long, ribbon-like oral arms that can help it capture prey. It has been recorded in deep water by remotely operated vehicles.",
+    genetics: "Because it is rarely observed, many details of its biology remain poorly documented. Genetic information and direct observations help researchers place rare species within the wider jellyfish family tree.",
+    special: "Unlike many familiar jellyfish, it does not have the usual long, fine tentacles. Its enormous oral arms give it a distinctive appearance."
   }
 };
 
-const ocean = document.getElementById("ocean");
-const creatures = document.getElementById("creatures");
-const profile = document.getElementById("profile");
+const panel = document.getElementById("infoPanel");
+const photo = document.getElementById("panelPhoto");
 
-function showZone(zoneKey) {
-  const zone = zones[zoneKey];
-  ocean.dataset.zone = zoneKey;
-  document.getElementById("zone-title").textContent = zone.title;
-  document.getElementById("zone-depth").textContent = zone.depth;
-  document.getElementById("zone-description").textContent = zone.description;
-  profile.classList.remove("show");
+document.querySelectorAll(".jelly").forEach(button => {
+  button.addEventListener("click", () => {
+    const item = species[button.dataset.species];
+    if (!item) return;
 
-  document.querySelectorAll(".zone-button").forEach(button => {
-    const selected = button.dataset.zone === zoneKey;
-    button.classList.toggle("active", selected);
-    button.setAttribute("aria-pressed", String(selected));
+    document.getElementById("panelName").textContent = item.name;
+    document.getElementById("panelLatin").textContent = item.latin;
+    document.getElementById("panelDepth").textContent = item.depth;
+    document.getElementById("panelSurvival").textContent = item.survival;
+    document.getElementById("panelGenetics").textContent = item.genetics;
+    document.getElementById("panelSpecial").textContent = item.special;
+    photo.src = item.photo;
+    photo.alt = item.name;
+    panel.classList.add("open");
+    document.getElementById("closePanel").focus();
   });
-
-  creatures.innerHTML = "";
-  zone.creatures.forEach((species, index) => {
-    const button = document.createElement("button");
-    button.className = "creature";
-    button.innerHTML = `
-      <img src="${species.image}" alt="${species.name}"
-           loading="lazy" onerror="this.style.display='none'">
-      <div class="creature-info">
-        <strong>${species.name}</strong>
-        <small>${species.short}</small>
-      </div>`;
-    button.addEventListener("click", () => showProfile(species));
-    creatures.appendChild(button);
-  });
-}
-
-function showProfile(species) {
-  document.getElementById("profile-name").textContent =
-    species.name + " — " + species.scientific;
-  document.getElementById("profile-fact").textContent =
-    "FIELD NOTES: " + species.fact;
-  document.getElementById("profile-adaptation").textContent =
-    "ADAPTATIONS: " + species.adaptation;
-  document.getElementById("profile-genetics").textContent =
-    "GENETICS: " + species.genetics;
-  profile.classList.add("show");
-  profile.scrollIntoView({ behavior: "smooth", block: "nearest" });
-}
-
-document.querySelectorAll(".zone-button").forEach(button => {
-  button.addEventListener("click", () => showZone(button.dataset.zone));
-});
-document.getElementById("close-profile").addEventListener("click", () => {
-  profile.classList.remove("show");
 });
 
-showZone("sunlight");
+function closePanel() {
+  panel.classList.remove("open");
+}
+document.getElementById("closePanel").addEventListener("click", closePanel);
+document.addEventListener("keydown", event => {
+  if (event.key === "Escape") closePanel();
+});
+
+const fill = document.getElementById("progressFill");
+const depthNumber = document.getElementById("depthNumber");
+const depthZone = document.getElementById("depthZone");
+const zones = [...document.querySelectorAll(".depth-zone")];
+
+function updateOceanReadout() {
+  const scrollable = document.documentElement.scrollHeight - window.innerHeight;
+  const progress = scrollable > 0 ? window.scrollY / scrollable : 0;
+  fill.style.width = `${progress * 100}%`;
+
+  const ocean = document.getElementById("ocean");
+  const oceanRect = ocean.getBoundingClientRect();
+  const oceanScroll = Math.max(0, -oceanRect.top);
+  const totalOceanScroll = Math.max(1, ocean.offsetHeight - window.innerHeight);
+  const depth = Math.round((oceanScroll / totalOceanScroll) * 6000);
+
+  depthNumber.textContent = `${String(depth).padStart(4, "0")} M`;
+
+  let current = "SURFACE WATERS";
+  zones.forEach(zone => {
+    if (zone.getBoundingClientRect().top < window.innerHeight * 0.55) {
+      current = zone.dataset.zone;
+    }
+  });
+  depthZone.textContent = current;
+}
+window.addEventListener("scroll", updateOceanReadout, { passive: true });
+window.addEventListener("resize", updateOceanReadout);
+updateOceanReadout();
 </script>
 </body>
 </html>
